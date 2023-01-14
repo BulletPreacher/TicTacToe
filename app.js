@@ -83,22 +83,6 @@ game.ini();
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-const displayController = (() => {
-  const update = () => {
-    let boardArray = Board.getArr();
-    const blocks = document.querySelectorAll(".block");
-    blocks.forEach((block, index) => {
-      block.textContent = boardArray[index];
-    });
-  };
-
-  return {
-    update,
-  };
-})();
-
-////////////////////////////////////////////////////////////////////////////////////////
-
 const Board = (() => {
   const boardArray = ["", "", "", "", "", "", "", "", ""];
   const getArr = () => boardArray;
@@ -113,5 +97,22 @@ const Board = (() => {
   return {
     update,
     getArr,
+  };
+})();
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+const displayController = (() => {
+  const update = () => {
+    let boardArray = Board.getArr();
+    const blocks = document.querySelectorAll(".block");
+    blocks.forEach((block, index) => {
+      block.textContent = boardArray[index];
+    });
+  };
+
+  return {
+    update,
   };
 })();
