@@ -1,8 +1,9 @@
 const game = (() => {
-  let currentPlayer, P1, P2;
-
+  let currentPlayer, P1, P2, isDone;
+  let message = document.getElementById("Message");
   const Player = (name, symbol) => {
     let playerArr = [];
+    const clearArr = () => (playerArr = []);
     const getName = () => name;
     const getSymbol = () => symbol;
     const getArr = () => playerArr;
@@ -30,38 +31,54 @@ const game = (() => {
             count++;
           }
           if (count == 3) {
-            return playerWin();
+            return playerWin(), displayController.showWin(currentCombo);
           }
         }
       }
-      console.log(Board.getArr().includes(""));
       if (!Board.getArr().includes("")) {
         return playerDraw();
       }
     };
 
     const playerWin = () => {
-      console.log("you won");
+      message.innerHTML = `${getName()} Wins`;
+      game.end();
     };
 
     const playerDraw = () => {
-      console.log("you drew");
+      message.innerHTML = "No one wins - Draw";
+      game.end();
     };
 
-    return { getName, getSymbol, getArr, move };
+    return { clearArr, getName, getSymbol, getArr, move };
   };
 
   const ini = () => {
-    P1 = Player("Lyle", "X");
-    P2 = Player("Kyle", "O");
+    isDone = false;
+    P1 = Player("Player1", "X");
+    P2 = Player("Player2", "O");
+    P1.clearArr();
+    P2.clearArr();
+    Board.clear();
     currentPlayer = P1;
+    message.innerHTML = "";
     addEventListeners();
+    displayController.clear();
+  };
+
+  const end = () => {
+    isDone = true;
   };
 
   const addEventListeners = () => {
     const blocks = document.querySelectorAll(".block");
     blocks.forEach((block) => {
       block.addEventListener("click", (e) => {
+        if (e.target.innerHTML !== "") {
+          return;
+        } else if (isDone == true) {
+          return;
+        }
         const index = e.target.getAttribute("data");
         Board.update(index, currentPlayer.getSymbol());
         currentPlayer.move(index);
@@ -74,45 +91,65 @@ const game = (() => {
     });
   };
 
+  const Board = (() => {
+    let boardArray = ["", "", "", "", "", "", "", "", ""];
+    const getArr = () => boardArray;
+    const clear = () => (boardArray = ["", "", "", "", "", "", "", "", ""]);
+    const update = (index, symbol) => {
+      if (boardArray[index] !== "") {
+        return;
+      }
+      boardArray[index] = symbol;
+      displayController.update();
+    };
+    return {
+      update,
+      getArr,
+      clear,
+    };
+  })();
+
+  const displayController = (() => {
+    const update = () => {
+      let boardArray = Board.getArr();
+      const blocks = document.querySelectorAll(".block");
+      blocks.forEach((block, index) => {
+        if (boardArray[index] == "X") {
+          let colorBlock = "#e61000";
+          block.textContent = boardArray[index];
+          block.style.color = colorBlock;
+        } else {
+          let colorBlock = "#673ab7";
+          block.textContent = boardArray[index];
+          block.style.color = colorBlock;
+        }
+      });
+    };
+
+    const clear = () => {
+      const blocks = document.querySelectorAll(".block");
+      blocks.forEach((block) => {
+        block.textContent = "";
+        block.style.backgroundColor = "";
+      });
+    };
+
+    const showWin = (x) => {
+      const blocks = document.querySelectorAll(".block");
+      for (let i = 0; i < x.length; i++) {
+        let index = x[i];
+        blocks[index].style.backgroundColor = "#00bcd4";
+      }
+    };
+    return {
+      update,
+      showWin,
+      clear,
+    };
+  })();
+
   return {
     ini,
-  };
-})();
-
-game.ini();
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-const Board = (() => {
-  const boardArray = ["", "", "", "", "", "", "", "", ""];
-  const getArr = () => boardArray;
-  const update = (index, symbol) => {
-    if (boardArray[index] !== "") {
-      return;
-    }
-    boardArray[index] = symbol;
-    displayController.update();
-  };
-
-  return {
-    update,
-    getArr,
-  };
-})();
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-const displayController = (() => {
-  const update = () => {
-    let boardArray = Board.getArr();
-    const blocks = document.querySelectorAll(".block");
-    blocks.forEach((block, index) => {
-      block.textContent = boardArray[index];
-    });
-  };
-
-  return {
-    update,
+    end,
   };
 })();

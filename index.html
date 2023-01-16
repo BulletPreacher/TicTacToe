@@ -9,7 +9,9 @@
   </head>
   <body>
     <div class="container">
-      <div class="header"></div>
+      <div class="header">
+        <h1>TIC TAC TOE</h1>
+      </div>
       <div class="content">
         <div id="board">
           <div class="block" data="0"></div>
@@ -22,9 +24,11 @@
           <div class="block" data="7"></div>
           <div class="block" data="8"></div>
         </div>
-
-        <button class="StartPlayer">Start VS Player</button>
+        <div class="buttons">
+        <button class="StartPlayer" onclick="game.ini()">Start VS Player</button>
         <button class="StartAI">Start VS AI</button>
+        </div>
+        <p id="Message"></p>
       </div>
     </div>
     <script src="./app.js"></script>
