@@ -66,6 +66,10 @@ const game = (() => {
     message.innerHTML = "";
     addEventListeners();
     board.style.transform = "Scale(1)";
+    const blocks = document.querySelectorAll(".block");
+    blocks.forEach((block) => {
+      block.style.backgroundColor= "#9eff2d"
+    })
   };
 
   const end = () => {
