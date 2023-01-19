@@ -72,12 +72,12 @@
 
 .block:active {
   transform: scale(0.9) !important;
-  background-color: #ff9800;
 }
 
 .block:hover {
   transform: scale(1.1);
-  background-color: crimson;
+  background-color: crimson !important;
+  color: white !important;
 }
 
 .buttons {
