@@ -1,6 +1,7 @@
 const game = (() => {
   let currentPlayer, P1, P2, isDone;
   let message = document.getElementById("Message");
+  let board = document.getElementById("board");
   const Player = (name, symbol) => {
     let playerArr = [];
     const clearArr = () => (playerArr = []);
@@ -46,7 +47,7 @@ const game = (() => {
     };
 
     const playerDraw = () => {
-      message.innerHTML = "No one wins - Draw";
+      message.innerHTML = "Tie - No One Wins";
       game.end();
     };
 
@@ -55,15 +56,16 @@ const game = (() => {
 
   const ini = () => {
     isDone = false;
-    P1 = Player("Player1", "X");
-    P2 = Player("Player2", "O");
+    P1 = Player("Player_1", "X");
+    P2 = Player("Player_2", "O");
     P1.clearArr();
     P2.clearArr();
     Board.clear();
+    displayController.clear();
     currentPlayer = P1;
     message.innerHTML = "";
     addEventListeners();
-    displayController.clear();
+    board.style.transform = "Scale(1)";
   };
 
   const end = () => {
@@ -74,18 +76,20 @@ const game = (() => {
     const blocks = document.querySelectorAll(".block");
     blocks.forEach((block) => {
       block.addEventListener("click", (e) => {
-        if (e.target.innerHTML !== "") {
+        const index = e.target.getAttribute("data");
+        if (Board.getArr()[index] !== "") {
           return;
         } else if (isDone == true) {
           return;
-        }
-        const index = e.target.getAttribute("data");
-        Board.update(index, currentPlayer.getSymbol());
-        currentPlayer.move(index);
-        if (currentPlayer == P1) {
-          currentPlayer = P2;
         } else {
-          currentPlayer = P1;
+          message.innerHTML = "";
+          Board.update(index, currentPlayer.getSymbol());
+          currentPlayer.move(index);
+          if (currentPlayer == P1) {
+            currentPlayer = P2;
+          } else {
+            currentPlayer = P1;
+          }
         }
       });
     });
@@ -96,9 +100,6 @@ const game = (() => {
     const getArr = () => boardArray;
     const clear = () => (boardArray = ["", "", "", "", "", "", "", "", ""]);
     const update = (index, symbol) => {
-      if (boardArray[index] !== "") {
-        return;
-      }
       boardArray[index] = symbol;
       displayController.update();
     };
@@ -130,6 +131,7 @@ const game = (() => {
       const blocks = document.querySelectorAll(".block");
       blocks.forEach((block) => {
         block.textContent = "";
+        block.innerHTML = "";
         block.style.backgroundColor = "";
       });
     };
