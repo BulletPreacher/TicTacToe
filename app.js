@@ -128,47 +128,32 @@ const game = (() => {
 
   function winnerS(board) {
     // check rows
-    if (board[0] !== "" && board[0] === board[1] && board[1] === board[2]) {
-      return board[0];
-    } else if (
-      board[3] !== "" &&
-      board[3] === board[4] &&
-      board[4] === board[5]
-    ) {
-      return board[3];
-    } else if (
-      board[6] !== "" &&
-      board[6] === board[7] &&
-      board[7] === board[8]
-    ) {
-      return board[6];
+    for (let i = 0; i < 3; i++) {
+      if (
+        board[i * 3] !== "" &&
+        board[i * 3] === board[i * 3 + 1] &&
+        board[i * 3 + 1] === board[i * 3 + 2]
+      ) {
+        return board[i * 3];
+      }
     }
 
     // check columns
-    if (board[0] !== "" && board[0] === board[3] && board[3] === board[6]) {
-      return board[0];
-    } else if (
-      board[1] !== "" &&
-      board[1] === board[4] &&
-      board[4] === board[7]
-    ) {
-      return board[1];
-    } else if (
-      board[2] !== "" &&
-      board[2] === board[5] &&
-      board[5] === board[8]
-    ) {
-      return board[2];
+    for (let j = 0; j < 3; j++) {
+      if (
+        board[j] !== "" &&
+        board[j] === board[j + 3] &&
+        board[j + 3] === board[j + 6]
+      ) {
+        return board[j];
+      }
     }
 
     // check diagonals
     if (board[0] !== "" && board[0] === board[4] && board[4] === board[8]) {
       return board[0];
-    } else if (
-      board[2] !== "" &&
-      board[2] === board[4] &&
-      board[4] === board[6]
-    ) {
+    }
+    if (board[2] !== "" && board[2] === board[4] && board[4] === board[6]) {
       return board[2];
     }
 
