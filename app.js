@@ -2,6 +2,17 @@ const game = (() => {
   let currentPlayer, P1, P2, isDone, isWin, opp;
   let message = document.getElementById("Message");
   let board = document.getElementById("board");
+  const blocks = document.querySelectorAll(".block");
+
+  const playerGame = () => {
+    opp = "player";
+    Board.clear();
+  };
+
+  const aiGame = () => {
+    opp = "AI";
+    Board.clear();
+  };
 
   const end = () => {
     const setDone = () => (isDone = true);
@@ -9,193 +20,27 @@ const game = (() => {
     return { getDone, setDone };
   };
 
-  const Player = (name, symbol) => {
-    let playerArr = [];
-    const clearArr = () => (playerArr = []);
-    const getName = () => name;
-    const getSymbol = () => symbol;
-    const getArr = () => playerArr;
-
-    const aiMove = () => {
-      var possibleMoves = Board.getArr();
-      var moves = [];
-      for (let i = 0; i < possibleMoves.length; i++) {
-        if (possibleMoves[i] == "") {
-          moves.push(i);
-        }
-      }
-      var validMove = moves[Math.floor(Math.random() * moves.length)];
-      validMove = validMove.toString();
-      playerArr.push(validMove);
-      console.log(`Player 2 array: ${typeof playerArr[0]}`);
-      return validMove;
-    };
-
-    const movePlayer = (index) => {
-      playerArr.push(index);
-      console.log(`Player 1 array: ${typeof playerArr[0]}`);
-    };
-
-    const checkWin = () => {
-      console.log("((" + getName() + " Win Check))");
-      let arrWinning = [
-        ["0", "3", "6"],
-        ["1", "4", "7"],
-        ["2", "5", "8"],
-        ["0", "1", "2"],
-        ["3", "4", "5"],
-        ["6", "7", "8"],
-        ["0", "4", "8"],
-        ["2", "4", "6"],
-      ];
-      for (let i = 0; i < arrWinning.length; i++) {
-        let count = 0;
-        let currentCombo = arrWinning[i]; //Checks one of the combos
-        console.log("Combo Check: " + arrWinning[i]);
-
-        for (let j = 0; j < currentCombo.length; j++) {
-          console.log(
-            `Check ${j} ${currentPlayer.getName()} {${currentPlayer.getArr()}} has ${
-              currentCombo[j]
-            } = ${playerArr.includes(currentCombo[j])} `
-          );
-          console.log(playerArr);
-          playerArr.includes(currentCombo[j]);
-          if (playerArr.includes(currentCombo[j])) {
-            count++;
-            console.log(
-              "Combo Matched: " +
-                currentCombo +
-                " " +
-                getName() +
-                " has " +
-                count +
-                " matches"
-            );
-            if (count == 3) {
-              console.log(currentCombo);
-              return playerWin(), displayController.showWin(currentCombo);
-            }
-          }
-        }
-      }
-      if (!Board.getArr().includes("") && isWin == false) {
-        return playerDraw();
-      }
-    };
-
-    const playerWin = () => {
-      if (currentPlayer==P2 && opp=="AI")
-      message.innerHTML = `AI Wins`;
-      else if (currentPlayer==P1 && opp=="AI"){
-      message.innerHTML = `You Win`; 
-      }else{
-        message.innerHTML = `${getName()} Wins`;
-      }
-      isWin = true;
-      game.end().setDone();
-    };
-
-    const playerDraw = () => {
-      message.innerHTML = "Tie - No One Wins";
-      game.end().setDone();
-    };
-
-    return {
-      clearArr,
-      getName,
-      getSymbol,
-      getArr,
-      aiMove,
-      movePlayer,
-      checkWin,
-    };
-  };
-
-  const ini = () => {
-    isDone = false;
-    isWin = false;
-    Board.clear();
-    displayController.clear();
-    P1 = Player("X", "X");
-    P2 = Player("O", "O");
-    P1.clearArr();
-    P2.clearArr();
-    currentPlayer = P1;
-    message.innerHTML = "";
-    addEventListeners();
-    board.style.transform = "Scale(1)";
-    const blocks = document.querySelectorAll(".block");
-    blocks.forEach((block) => {
-      block.style.backgroundColor = "#9eff2d";
-    });
-    console.log("Player Time");
-  };
-
-  const playerGame = () => {
-    opp = "player";
-    ini();
-  };
-
-  const aiGame = () => {
-    opp = "AI";
-    ini();
-  };
-
-  const addEventListeners = () => {
-    const blocks = document.querySelectorAll(".block");
-    blocks.forEach((block) => {
-      block.addEventListener("click", (e) => {
-        const index = e.target.getAttribute("data");
-        if (game.end().getDone() == true) {
-          //if game is over - return
-          return;
-        } else if (Board.getArr()[index] !== "") {
-          //if block used - return
-          return;
-        } else {
-          //Human plays and checks win()
-          Board.update(index, currentPlayer.getSymbol());
-          currentPlayer.movePlayer(index);
-          currentPlayer.checkWin();
-          if (game.end().getDone() == true) {
-            return;
-          } else if (currentPlayer == P1 && opp == "AI") {
-            console.log("AI Time");
-            currentPlayer = P2;
-            Board.update(currentPlayer.aiMove(), currentPlayer.getSymbol());
-            currentPlayer.checkWin();
-            currentPlayer = P1;
-            console.log("Player Time");
-          } else if (currentPlayer == P1 && opp == "player") {
-            currentPlayer = P2;
-          } else {
-            currentPlayer = P1;
-          }
-        }
-      });
-    });
-  };
-
   const Board = (() => {
     let boardArray = ["", "", "", "", "", "", "", "", ""];
+    const clear = () => {
+      boardArray = ["", "", "", "", "", "", "", "", ""];
+      displayController.clear();
+    };
     const getArr = () => boardArray;
-    const clear = () => (boardArray = ["", "", "", "", "", "", "", "", ""]);
     const update = (index, symbol) => {
       boardArray[index] = symbol;
       displayController.update();
     };
     return {
-      update,
-      getArr,
       clear,
+      getArr,
+      update,
     };
   })();
 
   const displayController = (() => {
     const update = () => {
       let boardArray = Board.getArr();
-      const blocks = document.querySelectorAll(".block");
       blocks.forEach((block, index) => {
         if (boardArray[index] == "X") {
           let colorBlock = "#e61000";
@@ -208,33 +53,234 @@ const game = (() => {
         }
       });
     };
+
+    const clear = () => {
+      message.innerHTML = "";
+      board.style.transform = "Scale(1)";
+      P1 = Player("X", "X");
+      P2 = Player("O", "O");
+      currentPlayer = P1;
+      isDone = false;
+      isWin = false;
+      blocks.forEach((block) => {
+        block.style.backgroundColor = "#9eff2d";
+        block.textContent = "";
+        block.innerHTML = "";
+      });
+      blockClicked();
+    };
+
     const showWin = (x) => {
-      const blocks = document.querySelectorAll(".block");
       for (let i = 0; i < x.length; i++) {
         let index = x[i];
         blocks[index].style.backgroundColor = "#00bcd4";
       }
+      if (currentPlayer == P2 && opp == "AI") message.innerHTML = `AI Wins`;
+      else if (currentPlayer == P1 && opp == "AI") {
+        message.innerHTML = `You Win`;
+      } else {
+        message.innerHTML = `${currentPlayer.getName()} Wins`;
+      }
+      isWin = true;
+      game.end().setDone();
     };
-    const clear = () => {
-      const blocks = document.querySelectorAll(".block");
-      blocks.forEach((block) => {
-        block.textContent = "";
-        block.innerHTML = "";
-        block.style.backgroundColor = "";
-      });
+
+    const showDraw = () => {
+      message.innerHTML = "Tie - No One Wins";
+      game.end().setDone();
     };
     return {
       update,
-      showWin,
       clear,
+      showWin,
+      showDraw,
     };
   })();
 
-  ////////////////////////////////////////////// Game Return Start
+  const blockClicked = () => {
+    blocks.forEach((block) => {
+      block.addEventListener("click", (e) => {
+        let index = e.target.getAttribute("data");
+        if (game.end().getDone() == true) {
+          return;
+        } else if (Board.getArr()[index] !== "") {
+          return;
+        } else {
+          currentPlayer.move(index);
+        }
+        if (game.end().getDone() == true) {
+          return;
+        }
+        if (currentPlayer == P1) {
+          currentPlayer = P2;
+          if (opp == "AI") {
+            currentPlayer.move();
+            currentPlayer = P1;
+          }
+        } else {
+          currentPlayer = P1;
+        }
+      });
+    });
+  };
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  function winnerS(board) {
+    // check rows
+    if (board[0] !== "" && board[0] === board[1] && board[1] === board[2]) {
+      return board[0];
+    } else if (
+      board[3] !== "" &&
+      board[3] === board[4] &&
+      board[4] === board[5]
+    ) {
+      return board[3];
+    } else if (
+      board[6] !== "" &&
+      board[6] === board[7] &&
+      board[7] === board[8]
+    ) {
+      return board[6];
+    }
+
+    // check columns
+    if (board[0] !== "" && board[0] === board[3] && board[3] === board[6]) {
+      return board[0];
+    } else if (
+      board[1] !== "" &&
+      board[1] === board[4] &&
+      board[4] === board[7]
+    ) {
+      return board[1];
+    } else if (
+      board[2] !== "" &&
+      board[2] === board[5] &&
+      board[5] === board[8]
+    ) {
+      return board[2];
+    }
+
+    // check diagonals
+    if (board[0] !== "" && board[0] === board[4] && board[4] === board[8]) {
+      return board[0];
+    } else if (
+      board[2] !== "" &&
+      board[2] === board[4] &&
+      board[4] === board[6]
+    ) {
+      return board[2];
+    }
+
+    // check tie
+    for (let i = 0; i < 9; i++) {
+      if (board[i] === "") {
+        return "NONE";
+      }
+    }
+    return "TIE";
+  }
+
+  const miniMax = (board, player) => {
+    let winner = winnerS(board);
+    if (winner === "X" || winner === "O") {
+      return winner === player.getSymbol() ? 1 : -1;
+    } else if (winner === "TIE") {
+      return 0;
+    }
+
+    let bestScore = player === P1 ? -Infinity : Infinity;
+    let currentScore;
+    let bestMove;
+
+    // loop through all empty spots on the board
+    for (let i = 0; i < board.length; i++) {
+      if (board[i] === "") {
+        board[i] = player.getSymbol(); //places player at point
+        let nextPlayer = player === P1 ? P2 : P1; //sets next player
+        currentScore = miniMax(board, nextPlayer); //call the miniMax function again, checks win
+        if (player === P1) {
+          if (currentScore > bestScore) {
+            bestScore = currentScore;
+            bestMove = i;
+          }
+        } else {
+          if (currentScore < bestScore) {
+            bestScore = currentScore;
+            bestMove = i;
+          }
+        }
+        board[i] = "";
+      }
+    }
+    if (bestMove === undefined) {
+      return 0;
+    } else if (player === P1) {
+      return bestScore.toString();
+    } else {
+      return bestMove.toString();
+    }
+  };
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  const Player = (name, symbol) => {
+    let playerArr = [];
+    const getName = () => name;
+    const getSymbol = () => symbol;
+    const getArr = () => playerArr;
+
+    const move = (index) => {
+      if (opp == "AI" && currentPlayer == P2) {
+        var bestMove = miniMax(Board.getArr(), currentPlayer);
+        Board.update(bestMove, currentPlayer.getSymbol());
+        playerArr.push(bestMove);
+      } else {
+        Board.update(index, currentPlayer.getSymbol());
+        playerArr.push(index);
+      }
+      checkWin();
+    };
+
+    const checkWin = () => {
+      let arrWinning = [
+        ["0", "3", "6"],
+        ["1", "4", "7"],
+        ["2", "5", "8"],
+        ["0", "1", "2"],
+        ["3", "4", "5"],
+        ["6", "7", "8"],
+        ["0", "4", "8"],
+        ["2", "4", "6"],
+      ];
+      for (let i = 0; i < arrWinning.length; i++) {
+        let count = 0;
+        let currentCombo = arrWinning[i];
+        for (let j = 0; j < currentCombo.length; j++) {
+          playerArr.includes(currentCombo[j]);
+          if (playerArr.includes(currentCombo[j])) {
+            count++;
+            if (count == 3) {
+              return displayController.showWin(currentCombo);
+            }
+          }
+        }
+      }
+      if (!Board.getArr().includes("") && isWin == false) {
+        return displayController.showDraw();
+      }
+    };
+
+    return {
+      getName,
+      getSymbol,
+      getArr,
+      move,
+    };
+  };
 
   return {
-    ini, //starts game
-    playerGame, //
+    playerGame,
     aiGame,
     end,
   };
@@ -243,5 +289,4 @@ const game = (() => {
 document
   .getElementById("playerGame")
   .addEventListener("click", game.playerGame);
-
 document.getElementById("AIGame").addEventListener("click", game.aiGame);
