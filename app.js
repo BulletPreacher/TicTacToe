@@ -1,5 +1,5 @@
 const game = (() => {
-  let currentPlayer, P1, P2, isDone, isWin, opp;
+  let currentPlayer, currentCombo, P1, P2, isDone, isWin, opp;
   let message = document.getElementById("Message");
   let board = document.getElementById("board");
   const blocks = document.querySelectorAll(".block");
@@ -125,66 +125,24 @@ const game = (() => {
   };
 
   /////////////////////////////////////////////////////////////////////////////
-
-  function winnerS(board) {
-    // check rows
-    for (let i = 0; i < 3; i++) {
-      if (
-        board[i * 3] !== "" &&
-        board[i * 3] === board[i * 3 + 1] &&
-        board[i * 3 + 1] === board[i * 3 + 2]
-      ) {
-        return board[i * 3];
-      }
-    }
-
-    // check columns
-    for (let j = 0; j < 3; j++) {
-      if (
-        board[j] !== "" &&
-        board[j] === board[j + 3] &&
-        board[j + 3] === board[j + 6]
-      ) {
-        return board[j];
-      }
-    }
-
-    // check diagonals
-    if (board[0] !== "" && board[0] === board[4] && board[4] === board[8]) {
-      return board[0];
-    }
-    if (board[2] !== "" && board[2] === board[4] && board[4] === board[6]) {
-      return board[2];
-    }
-
-    // check tie
-    for (let i = 0; i < 9; i++) {
-      if (board[i] === "") {
-        return "NONE";
-      }
-    }
-    return "TIE";
-  }
-
   const miniMax = (board, player) => {
-    let winner = winnerS(board);
+    let winner = player.checkWin(board);
+    let bestScore = player === P2 ? -Infinity : Infinity;
+    let currentScore;
+    let bestMove;
+
     if (winner === "X" || winner === "O") {
       return winner === player.getSymbol() ? 1 : -1;
     } else if (winner === "TIE") {
       return 0;
     }
 
-    let bestScore = player === P1 ? -Infinity : Infinity;
-    let currentScore;
-    let bestMove;
-
-    // loop through all empty spots on the board
     for (let i = 0; i < board.length; i++) {
       if (board[i] === "") {
-        board[i] = player.getSymbol(); //places player at point
-        let nextPlayer = player === P1 ? P2 : P1; //sets next player
-        currentScore = miniMax(board, nextPlayer); //call the miniMax function again, checks win
-        if (player === P1) {
+        board[i] = player.getSymbol();
+        let nextPlayer = player === P1 ? P2 : P1;
+        currentScore = miniMax(board, nextPlayer);
+        if (player === P2) {
           if (currentScore > bestScore) {
             bestScore = currentScore;
             bestMove = i;
@@ -201,7 +159,7 @@ const game = (() => {
     if (bestMove === undefined) {
       return 0;
     } else if (player === P1) {
-      return bestScore.toString();
+      return bestScore;
     } else {
       return bestMove.toString();
     }
@@ -224,10 +182,15 @@ const game = (() => {
         Board.update(index, currentPlayer.getSymbol());
         playerArr.push(index);
       }
-      checkWin();
+      let result = checkWin(Board.getArr());
+      if (result == currentPlayer.getSymbol()) {
+        displayController.showWin(currentCombo);
+      } else if (result == "TIE") {
+        displayController.showDraw();
+      }
     };
 
-    const checkWin = () => {
+    const checkWin = (board) => {
       let arrWinning = [
         ["0", "3", "6"],
         ["1", "4", "7"],
@@ -238,22 +201,23 @@ const game = (() => {
         ["0", "4", "8"],
         ["2", "4", "6"],
       ];
+      let count = 0;
       for (let i = 0; i < arrWinning.length; i++) {
-        let count = 0;
-        let currentCombo = arrWinning[i];
-        for (let j = 0; j < currentCombo.length; j++) {
-          playerArr.includes(currentCombo[j]);
-          if (playerArr.includes(currentCombo[j])) {
-            count++;
-            if (count == 3) {
-              return displayController.showWin(currentCombo);
-            }
+        const [a, b, c] = arrWinning[i];
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          currentCombo = arrWinning[i];
+          return board[a];
+        }
+      }
+      for (let i = 0; i < 9; i++) {
+        if (board[i] !== "") {
+          count = count + 1;
+          if (count === 9) {
+            return "TIE";
           }
         }
       }
-      if (!Board.getArr().includes("") && isWin == false) {
-        return displayController.showDraw();
-      }
+      return null;
     };
 
     return {
@@ -261,6 +225,7 @@ const game = (() => {
       getSymbol,
       getArr,
       move,
+      checkWin,
     };
   };
 
